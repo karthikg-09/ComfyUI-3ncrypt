@@ -15,7 +15,7 @@ def patch_convert_nodes():
                 with open(file_path, 'r') as f:
                     content = f.read()
                     # Look for the specific code pattern
-                    if 'content: "Convert to nodes",' in content and 'callback: /* @__PURE__ */' in content:
+                    if 'content: "Convert to nodes",' in content:
                         target_file = file_path
                         target_content = content
                         break
@@ -24,34 +24,21 @@ def patch_convert_nodes():
             # Split content into lines
             lines = target_content.splitlines()
             
-            # Find and comment the block
+            # Find the block
             for i in range(len(lines)):
                 if 'content: "Convert to nodes",' in lines[i]:
-                    # Find the complete block
-                    block_start = i
-                    block_end = i
-                    brace_count = 0
+                    # Get the block content
+                    block_content = '\n'.join(lines[i:i+7])
+                    # Create commented version
+                    commented_block = '\n'.join('//' + line for line in lines[i:i+7])
+                    # Replace only this specific block
+                    new_content = target_content.replace(block_content, commented_block)
                     
-                    # Find the complete block by matching braces
-                    for j in range(i, len(lines)):
-                        line = lines[j].strip()
-                        if '{' in line:
-                            brace_count += 1
-                        if '}' in line:
-                            brace_count -= 1
-                            if brace_count == 0 and line.endswith(','):
-                                block_end = j
-                                break
-                    
-                    # Comment out the entire block
-                    for j in range(block_start, block_end + 1):
-                        lines[j] = '//' + lines[j]
+                    # Write back the modified content
+                    with open(target_file, 'w') as f:
+                        f.write(new_content)
                     break
-            
-            # Write back the modified content
-            with open(target_file, 'w') as f:
-                f.write('\n'.join(lines))
-                
+                    
     except Exception as e:
         print(f"Failed to patch convert nodes: {str(e)}")
         pass

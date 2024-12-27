@@ -1,4 +1,4 @@
-# ComfyUI-KG09
+# ComfyUI-3ncrypt
 
 A collection of enhanced nodes for ComfyUI.
 
